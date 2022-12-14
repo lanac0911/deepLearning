@@ -38,7 +38,7 @@ def HillClimb() :
     # print("-----------------------")
     while i < 500:
         (stage) = compoents.HillClimbing() #初始值pair
-        print("遞迴",i, stage)
+        print("遞迴",i+1, stage)
         data.append(stage['value'])
         # if not flag: break
         i += 1
@@ -57,7 +57,7 @@ def main():
     plt.ylabel('values')
     plt.xlabel('times')
     plt.plot(data)        
-    plt.ylim(1200,1450)
+    plt.ylim(1200,1500)
     plt.show()
 
 main()

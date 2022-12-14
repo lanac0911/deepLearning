@@ -44,33 +44,66 @@ def calTotalWandV(blist):
     # print("總重:",tempWeight)
     # print("總價值:",tempValue)
     return(tempWeight, tempValue)
-    
 
+#----------15個neig找best
 def HillClimbing():
-    flag = False
     temp_state = now_state.copy()
+    temp_v = now_state['value']
     print("****",now_state)
     #Find neighbors *15
-    for index, pick in enumerate(now_state['blist']):
+    for i in range(0,varibles.objNums-1 , 2):
         new_list = now_state['blist'].copy()
-        new_list[index] = int(not pick)
+        new_list[i] = int(not new_list[i])
         (w, v) = calTotalWandV(new_list)
-        print("新的:")
+        print("新的:",new_list)
         print("w:",w)
         print("v:",v)
         print("-v----------------------")
         if w <= varibles.capcity: #合法
-            if v > now_state['value']: #新better than 舊
-                # flag = True
-                # temp_state['blist'] = new_list
-                # temp_state['weight'] = w
-                # temp_state['value'] = v
+            if v > temp_v: #新better than 舊
+                temp_state['blist'] = new_list
+                temp_state['weight'] = w
+                temp_v = v
                 # print("合法情況",temp_state)
                 # print("原始情況",now_state)
+                
                 print("replace---------")
 
-                NewState(new_list, w, v)  
-                break
+    NewState(temp_state['blist'], temp_state['weight'], temp_v)  
     return (now_state)
+
+
+
+
+
+##----------15個neig找best
+# def HillClimbing():
+#     flag = False
+#     temp_state = now_state.copy()
+#     temp_v = now_state['value']
+#     print("****",now_state)
+#     #Find neighbors *15
+#     for index, pick in enumerate(now_state['blist']):
+#         new_list = now_state['blist'].copy()
+#         idx = varibles.objNums #15
+#         new_list[index] = int(not pick)
+#         (w, v) = calTotalWandV(new_list)
+#         print("新的:")
+#         print("w:",w)
+#         print("v:",v)
+#         print("-v----------------------")
+#         if w <= varibles.capcity: #合法
+#             if v > temp_v: #新better than 舊
+#                 # flag = True
+#                 temp_state['blist'] = new_list
+#                 temp_state['weight'] = w
+#                 temp_v = v
+#                 # print("合法情況",temp_state)
+#                 # print("原始情況",now_state)
+                
+#                 print("replace---------")
+
+#     NewState(temp_state['blist'], temp_state['weight'], temp_v)  
+#     return (now_state)
 
 
