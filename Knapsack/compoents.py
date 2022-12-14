@@ -48,12 +48,11 @@ def calTotalWandV(blist):
 
 def HillClimbing():
     flag = False
-    ARRAY = now_state
     temp_state = now_state.copy()
     print("****",now_state)
     #Find neighbors *15
-    for index, pick in enumerate(ARRAY):
-        new_list = ARRAY.copy()
+    for index, pick in enumerate(now_state['blist']):
+        new_list = now_state['blist'].copy()
         new_list[index] = int(not pick)
         (w, v) = calTotalWandV(new_list)
         print("新的:")
