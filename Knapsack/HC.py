@@ -1,5 +1,6 @@
 import compoents
 import varibles
+import matplotlib.pyplot as plt
 
 paths = ['p07_c.txt', 'p07_w.txt', 'p07_p.txt']
 iterationNums = 10 #遞迴次數
@@ -26,6 +27,7 @@ def loadData():
         f.close()
 
 
+data = []
 #------------------------------------
 def HillClimb() :
     i = 0
@@ -35,11 +37,15 @@ def HillClimb() :
     # print("init_v",init_v)
     # print("-----------------------")
     while i < 500:
-        (stage, flag) = compoents.HillClimbing() #初始值pair
+        (stage) = compoents.HillClimbing() #初始值pair
         print("遞迴",i, stage)
-        if not flag: break
+        data.append(stage['value'])
+        # if not flag: break
         i += 1
-        
+    print("vali",varibles.values)
+    print("weights",varibles.weights)
+
+
 
 
 def main():
@@ -47,6 +53,12 @@ def main():
     varibles.varibles()
     loadData()
     HillClimb()
+    plt.figure()
+    plt.ylabel('values')
+    plt.xlabel('times')
+    plt.plot(data)        
+    plt.ylim(1200,1450)
+    plt.show()
 
 main()
 

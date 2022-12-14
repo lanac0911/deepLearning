@@ -11,7 +11,7 @@ def NewState(blist, w, v):
 
 #---------Random"合法"初始狀態(解)----------
 def initialState():
-    pickBound = math.pow(2, int(varibles.objNums/2)) #15個先取一半
+    pickBound = math.pow(2, int(varibles.objNums)) #15個先取一半
     initNum = 0
     inti_w = init_v = 0
     while(1):
@@ -56,21 +56,21 @@ def HillClimbing():
         new_list[index] = int(not pick)
         (w, v) = calTotalWandV(new_list)
         print("新的:")
-        print("new_list:",new_list)
         print("w:",w)
         print("v:",v)
         print("-v----------------------")
         if w <= varibles.capcity: #合法
-            if v > temp_state['value']: #新better than 舊
-                flag = True
-                temp_state['blist'] = new_list
-                temp_state['weight'] = w
-                temp_state['value'] = v
-                print("合法情況",temp_state)
-                print("原始情況",now_state)
-                print("-----------------------")
+            if v > now_state['value']: #新better than 舊
+                # flag = True
+                # temp_state['blist'] = new_list
+                # temp_state['weight'] = w
+                # temp_state['value'] = v
+                # print("合法情況",temp_state)
+                # print("原始情況",now_state)
+                print("replace---------")
 
-    NewState(temp_state['blist'], temp_state['weight'], temp_state['value'])  
-    return (now_state, flag)
+                NewState(new_list, w, v)  
+                break
+    return (now_state)
 
 
