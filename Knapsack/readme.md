@@ -32,20 +32,37 @@
         * 只需一半的時間，且成效差不多
 
 ### ◻ 結果
-<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/HC.jpg" width="auto" height="500" />
+1. 由程式&收斂圖(圖一)可發現，爬山演算法：
+    * `優點`：容易實作
+    * `缺點`：容易卡在 **「區域最佳解」**
+    
+2. 鄰居
+    * 使用我的想法`「每兩bit」翻轉`，在資料數n不夠大時，較**不易取得(最靠近的)最佳解** (圖二)
+    * 固本題n=15下，選用`「每一bit」翻轉` (圖一)
+
+<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/HC2.jpg" width="auto" height="400" />
+
+`圖一`
+
+
+<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/HC2-2.jpg" width="auto" height="400" />
+
+`圖二`
+
 
 ### ◻ code review
+> 省略部分Code，只擷取重要的部分
 * **架構**
     ```
     |-- Knapsack   
-    |--- p07_{c,p,s,w}.txt
-    |--- HC.py  #main
-    |--- compoents.py  #功能函式s
+    |--- p07_{c,p,w}.txt
+    |--- main.py  
+    |--- compoents.py  #功能函式們 (HC&SA共用)
     |--- varibles.py  #存放global變數&參數設定
     ```
 
 1. **讀取txt檔**
-    * 使用f stream讀取權重/容量/
+    * 使用f stream讀取重量/容量/價值
    ```python
     for path in paths:
         f = open(path, 'r')
@@ -61,6 +78,7 @@
             compoents.initialState() #初始值/解
 
             def initialState():
+                global best_state
                 pickBound = math.pow(2, int(varibles.objNums/2)) #upperbound: 2^15
                 while(1):
                     initNum = format(random.randrange(1, pickBound), 'b') #範圍: 1 - 2^15
@@ -79,13 +97,13 @@
         ```
 
     * **定義Neighbors鄰居**
-        * 每兩位元進行**翻轉**(0→1,1→0)    
+        * 每元進行**翻轉**(0→1,1→0)    
         * 若**合法**(重量w符合)，且**更佳**(價值v大於原來的)，則**取代**初始解，成為新的初始解(暫時解)
          ```python
 
             def HillClimbing():
                 temp_state = now_state.copy() #取得初始解
-                for i in range(0,varibles.objNums-1 ,2): #每兩位元
+                for index, pick in enumerate(now_state['blist']): #遍歷每個位元
                     new_list = now_state['blist'].copy()
                     new_list[i] = int(not new_list[i])
                     (w, v) = calTotalWandV(new_list)
