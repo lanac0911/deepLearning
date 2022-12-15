@@ -54,6 +54,8 @@
 
 ### ◻ code review
 > 省略部分Code，只擷取重要的部分
+> 
+> HC跟SA共用main.py程式碼，執行時可選擇要實施哪一個演算法
 * **架構**
     ```
     |-- Knapsack   
