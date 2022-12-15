@@ -18,7 +18,7 @@
     id7 -- 否 --> id8([最終解])
 ```    
 
-### ◻ 想法
+### ◻ 想法&發現
 * **初始解**：
     * random一範圍1~$2^{n}$ 的數 initNum (decimal)
     * initNum轉為binary並分割成list(array)
@@ -79,7 +79,7 @@
 
             def initialState():
                 global best_state
-                pickBound = math.pow(2, int(varibles.objNums/2)) #upperbound: 2^15
+                pickBound = math.pow(2, int(varibles.objNums)) #upperbound: 2^15
                 while(1):
                     initNum = format(random.randrange(1, pickBound), 'b') #範圍: 1 - 2^15
                     blist = binToList(initNum) #拆成list
