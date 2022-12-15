@@ -28,9 +28,9 @@
 
   
 ### ◻ 想法&發現
-* **初始解**：
-    * random一範圍$(2^{n}/2)$~$2^{n}$ 的數 initNum (decimal)
-        * 測試後發現，取較大的數，意同盡量**取重量較輕的**，所需的迭代次數較少，故原範圍$1$~$2^{n}$，改成從$2^{n}$開始取
+* **初始解**：(同HC)
+    * random一範圍 $(2^{n}/2)$ ~ $2^{n}$ 的數 initNum (decimal)
+        * 測試後發現，取較大的數，意同盡量**取重量較輕的**，所需的迭代次數較少，故原範圍 $1$ ~ $2^{n}$ ，改成從 $(2^{n}/2)$ 開始取
         * eg. 11000 (24) 優於 10011(19)
     * initNum轉為binary並分割成list(array)
     * 計算總重 & 總價值
@@ -41,6 +41,7 @@
     * 我的想法：每隔兩位元再做一次翻轉
         * 例：n=5時，01001有 ***1***1001、01***1***01，00100***0***
         * 只需一半的時間
+        * 但在當前溫度下的搜尋次數太少
 * **初始溫度T，收斂速度RATIO**：
     * RATIO：
         * 大：降溫快，較早達平衡(穩定)，但也較可能找不到最佳解
@@ -60,6 +61,8 @@
 
 ### ◻ code review
 > 省略部分Code，只擷取重要的部分
+> 
+> HC跟SA共用main.py程式碼，執行時可選擇要實施哪一個演算法
 * **架構**
     ```
     |-- Knapsack   
@@ -88,7 +91,7 @@
             def initialState():
                 global best_state
                 pickBound = math.pow(2, int(varibles.objNums)) #upperbound: 2^15
-                min = int(pickBound/2) #SA用
+                min = int(pickBound/2) 
 
                 while(1):
                     initNum = format(random.randrange(min, pickBound), 'b') #範圍: 1 - 2^15
