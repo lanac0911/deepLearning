@@ -2,15 +2,18 @@ import random
 import varibles
 import math
 
-now_state = { 'blist':[], 'weight':0, 'value':0 }
-best_state = { 'blist':[], 'weight':0, 'value':0 }
-def NewState(blist, w, v):
+now_state = { 'blist':[], 'weight':0, 'value':0 } # Now：「現在」的狀態
+best_state = { 'blist':[], 'weight':0, 'value':0 } # (for SA) Best：「全域最佳」的狀態
+
+#---------更新Now狀態---------
+def UpdateNowState(blist, w, v):
     now_state['blist'] = blist
     now_state['weight'] = w
     now_state['value']= v
-#>>>>>>>>>>>>>>>>>Hill Climbing<<<<<<<<<<<<<<<<<
+
 #---------Random"合法"初始狀態(解)----------
 def initialState():
+    global best_state
     pickBound = math.pow(2, int(varibles.objNums/2)) #upperbound: 2^15
     inti_w = init_v = 0
     while(1):
@@ -22,9 +25,12 @@ def initialState():
             inti_w = w
             init_v = v
             break
-    NewState(blist, inti_w, init_v)
+    UpdateNowState(blist, inti_w, init_v) #存入Now狀態
+    best_state = now_state.copy() #(SA)初始先設為Best
+
     return (initNum, inti_w, init_v) #回傳"合法"二進位數
 
+#---------binary數拆成List---------
 def binToList(bin):
     len_pick = len(bin)
     len_total = varibles.objNums
@@ -33,6 +39,7 @@ def binToList(bin):
     blist += [0] * (len_total - len_pick) #補0
     return blist
 
+#----------計算weight和value----------
 def calTotalWandV(blist):
     tempWeight = 0
     tempValue = 0
@@ -45,76 +52,54 @@ def calTotalWandV(blist):
     return(tempWeight, tempValue)
 
 
-#----------15個neig找best
+#>>>>>>>>>>> HILL CLIMBL <<<<<<<<<<
 def HillClimbing():
-    temp_state = now_state.copy()
-    temp_v = now_state['value']
-    print("****",now_state)
-    #Find neighbors *15
-    for index, pick in enumerate(now_state['blist']):
+    test_state = now_state.copy()
+    now_v = now_state['value']
+    #生成 neighbors *15 (翻轉每兩位元)
+    for index, pick in enumerate(now_state['blist']): #遍歷每個位元
+    # for i in range(0,varibles.objNums-1 ,1): #遍歷每兩位元
         new_list = now_state['blist'].copy()
-        new_list[index] = int(not pick)
+        new_list[index] = int(not pick )
         (w, v) = calTotalWandV(new_list)
-        print("新的:",new_list)
-        print("w:",w)
-        print("v:",v)
-        print("-v----------------------")
         if w <= varibles.capcity: #合法
-            if v > temp_v: #新better than 舊
-                temp_state['blist'] = new_list
-                temp_state['weight'] = w
-                temp_v = v
-                # print("合法情況",temp_state)
-                # print("原始情況",now_state)
-                
-                print("replace********")
+            if v > now_v: #新better than 舊 => 交換
+                test_state['blist'] = new_list
+                test_state['weight'] = w
+                now_v = v
 
-    NewState(temp_state['blist'], temp_state['weight'], temp_v)  
+    UpdateNowState(test_state['blist'], test_state['weight'], now_v)  
     return (now_state)
 
-#>>>>>>>>>>>>>>>>>Simulation Annealing<<<<<<<<<<<<<<<<<
+
+#>>>>>>>>>>> Simulation Annealing <<<<<<<<<<
 def SimulationAnnealing():
-    T0 = 100
-    TF = 1
-    RATIO = 0.9
-    now_val = 0
-    print("nori_state", now_state)
-    best_state = now_state.copy()
-    
+    T0 = 150 #初始溫度 (影響解的搜索範圍)
+    TF = 1 #臨界溫度
+    RATIO = 0.9 #收斂速度 (過快較可能找步道最佳解)
     t = T0
+
     while t >= TF:
-        # for index, pick in enumerate(now_state['blist']):
-        for i in range(0, varibles.objNums, 1): 
-            new_list = now_state['blist'].copy()
-            new_list[i] = int(not new_list[i])
-            (w, v) = calTotalWandV(new_list)
-            # print("新的:",new_list)
-            print("new_list", new_list, "w:",w, "v:",v)
-            print("best_state:",best_state)
-            print("now_state:",now_state)
-            #best.
-            if w > varibles.capcity: print("wjump"); continue #非法，跳過
-            if w <= varibles.capcity: #合法
-                if v > best_state['value']: #新better than 舊
-                    print("***更新BEST")
-                    best_state['blist'] = new_list
-                    best_state['weight'] = w
-                    best_state['value'] = v
+        for index, pick in enumerate(now_state['blist']): #遍歷每個位元
+            (now_w, now_v) = calTotalWandV(now_state['blist'])
+            #生成 neighbors(test)
+            test_list = now_state['blist'].copy()
+            test_list[index] = int(not pick)
+            (test_w, test_v) = calTotalWandV(test_list)
+            #best更新
+            if test_w > varibles.capcity: continue #非法，跳過
+            if test_w <= varibles.capcity: #合法
+                if test_v > best_state['value']: #新better than 舊
+                    best_state['blist'] = test_list
+                    best_state['weight'] = test_w
+                    best_state['value'] = test_v
                     flag = True    
-            #temp
-            if v > now_state['value'] : #優於當前解 -> 更新
-                print("***直接更新")
-                NewState(new_list, w, v)
+            #now更新
+            if test_v > now_v : #優於當前解 -> 更新
+                UpdateNowState(test_list, test_w, test_v)
             else: #由機率判斷
-                dx = (v - now_state['value']) / T0
-                # print("dx",dx)
-                if(random.random() < math.exp(dx)):
-                    print("***機率更新")
-                    NewState(new_list, w, v)
-        t *= RATIO
-        print("-----------------------")
-
-        print
-
-    # return (now_state)
+                proba = (test_v - now_v) / t
+                if(random.random() < math.exp(proba)):
+                    UpdateNowState(test_list, test_w, test_v)
+        t *= RATIO 
     return (best_state)
