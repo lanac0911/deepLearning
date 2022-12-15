@@ -32,11 +32,11 @@ data = []
 def HillClimb() :
     i = 0
     #random合法初始值
-    (initSol, inti_w, init_v) = compoents.initialState()
+    compoents.initialState() #初始值/解
     # print("inti_w",inti_w)
     # print("init_v",init_v)
     # print("-----------------------")
-    while i < 500:
+    while i < varibles.iteraNum:
         (stage) = compoents.HillClimbing() #初始值pair
         print("遞迴",i+1, stage)
         data.append(stage['value'])

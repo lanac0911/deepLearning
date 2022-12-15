@@ -11,8 +11,7 @@ def NewState(blist, w, v):
 
 #---------Random"合法"初始狀態(解)----------
 def initialState():
-    pickBound = math.pow(2, int(varibles.objNums)) #15個先取一半
-    initNum = 0
+    pickBound = math.pow(2, int(varibles.objNums/2)) #15個先取一半
     inti_w = init_v = 0
     while(1):
         initNum = format(random.randrange(1, pickBound), 'b')
@@ -45,13 +44,55 @@ def calTotalWandV(blist):
     # print("總價值:",tempValue)
     return(tempWeight, tempValue)
 
-#----------15個neig找best
+
+
+# def HillClimbing():
+#     temp_state = now_state.copy()
+#     temp_v = now_state['value']
+#     print("****",now_state)
+#     #Find neighbors *15
+#     for i in range(varibles.objNums-2, 1, -1):
+#         flagL = False
+#         flagR = False
+#         rv = lv = lw = rw = 0
+
+#         print("i=",i)
+#         new_list = now_state['blist'].copy()
+#         temp_llist = now_state['blist'].copy()
+#         temp_rlist = now_state['blist'].copy()
+#         if (new_list[i] == 1 and new_list[i+1] == 0 ) or (new_list[i] == 1 and new_list[i-1] == 0 ) : 
+#             if new_list[i+1] == 0: #左0
+#                 temp_llist[i+1] = 1 #pick左
+#                 (lw, lv) = calTotalWandV(temp_llist)
+#                 if lw <= varibles.capcity and lv > temp_v: 
+#                     flagL = True #left有被選中
+#             elif new_list[i-1] == 0: #右0
+#                 temp_rlist[i-1] = 1 #pick右
+#                 (rw, rv) = calTotalWandV(temp_rlist)
+#                 if rw <= varibles.capcity and rv > temp_v: 
+#                     flagR = True
+
+#             print("temp_llist:",lw, lv, temp_llist)
+#             print("temp_rlist:",rw, rv ,temp_rlist)
+#             print("-v----------------------")
+#             #---
+#             if flagL : #left獲勝
+#                 NewState(temp_llist, lw, lv)  
+#             elif  flagR: NewState(temp_rlist, rw, rv)  #right勝
+#             # else: 
+#             #     NewState(temp_rlist, rw, rv)
+#             # break
+#     return (now_state)
+
+
+
+#----------15個 /2 neig找best
 def HillClimbing():
     temp_state = now_state.copy()
     temp_v = now_state['value']
     print("****",now_state)
     #Find neighbors *15
-    for i in range(0,varibles.objNums-1 , 2):
+    for i in range(0,varibles.objNums-1 ,2):
         new_list = now_state['blist'].copy()
         new_list[i] = int(not new_list[i])
         (w, v) = calTotalWandV(new_list)
