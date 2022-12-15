@@ -55,8 +55,8 @@ if __name__ == '__main__':
     while(1):
         inputn = input("\n――――選擇模式 ―――― \n 1：Hill Climbing       ｜\n 2：Simulation Annealing｜ \n―――――――――――――\n")
         choice = int(inputn)
-        if(choice == 1): ans = HillClimb(); break
-        elif(choice == 2): ans = SA(); break
+        if(choice == 1): ans = HillClimb(choice); break
+        elif(choice == 2): ans = SA(choice); break
         else: print("錯誤，請重新輸入")
  #print結果
     print("\n=========================================\n")
@@ -67,9 +67,9 @@ if __name__ == '__main__':
     print("------------------------------------------\n")
     print(f"* 結果：\n value：{ans['value']}\n weight：{ans['weight']}\n pick：{ans['blist']}")
     print("=========================================\n")
-  #畫圖
+  #畫圖 40-60  1458
     n = ans['value']
-    yrange = (n-10, n+10)
+    yrange = (n-15, n+1)
     plt.figure()
     plt.ylabel('values')
     plt.xlabel('times')

@@ -14,10 +14,10 @@ def UpdateNowState(blist, w, v):
 #---------Random"合法"初始狀態(解)----------
 def initialState():
     global best_state
-    pickBound = math.pow(2, int(varibles.objNums/2)) #upperbound: 2^15
+    pickBound = math.pow(2, int(varibles.objNums)) #upperbound: 2^15
     inti_w = init_v = 0
     while(1):
-        initNum = format(random.randrange(1, pickBound), 'b') #範圍: 1 - 2^15
+        initNum = format(random.randrange(int(pickBound/2) , pickBound), 'b') #範圍: 1 - 2^15
         blist = binToList(initNum) #拆成list
         (w, v) = calTotalWandV(blist)  #計算weight & value
         
@@ -25,6 +25,7 @@ def initialState():
             inti_w = w
             init_v = v
             break
+    print("初始解",blist)
     UpdateNowState(blist, inti_w, init_v) #存入Now狀態
     best_state = now_state.copy() #(SA)初始先設為Best
 
@@ -74,9 +75,9 @@ def HillClimbing():
 
 #>>>>>>>>>>> Simulation Annealing <<<<<<<<<<
 def SimulationAnnealing():
-    T0 = 150 #初始溫度 (影響解的搜索範圍)
+    T0 = 180 #初始溫度 (影響解的搜索範圍)
     TF = 1 #臨界溫度
-    RATIO = 0.9 #收斂速度 (過快較可能找步道最佳解)
+    RATIO = 0.9 #收斂速度 (過快較可能找不到最佳解)
     t = T0
 
     while t >= TF:
@@ -98,7 +99,7 @@ def SimulationAnnealing():
             if test_v > now_v : #優於當前解 -> 更新
                 UpdateNowState(test_list, test_w, test_v)
             else: #由機率判斷
-                proba = (test_v - now_v) / t
+                proba = float(test_v - now_v) / t
                 if(random.random() < math.exp(proba)):
                     UpdateNowState(test_list, test_w, test_v)
         t *= RATIO 
