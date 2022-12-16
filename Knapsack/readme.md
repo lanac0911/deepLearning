@@ -84,8 +84,10 @@
             def initialState():
                 global best_state
                 pickBound = math.pow(2, int(varibles.objNums)) #upperbound: 2^15
+                min = int(pickBound/2) 
+                
                 while(1):
-                    initNum = format(random.randrange(1, pickBound), 'b') #範圍: 1 - 2^15
+                    initNum = format(random.randrange(min, pickBound), 'b') #範圍: (2^15/2) - 2^15
                     blist = binToList(initNum) #拆成list
                     (w, v) = calTotalWandV(blist)  #計算weight & value
 
