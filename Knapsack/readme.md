@@ -117,3 +117,6 @@
                 #取代初始解,成為新的初始解(暫時解)
                 NewState(temp_state['blist'], temp_state['weight'], temp_v)   
         ```
+        
+### ◻ 參考資料
+ 1. [PDF教學檔](https://athena.ecs.csus.edu/~gordonvs/215/WeeklyNotes/03A_hillClimbingSimulatedAnnealing.pdf)
