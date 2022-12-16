@@ -1,156 +1,122 @@
-import numpy as np
-import cv2
-import os
-import random
 import matplotlib.pyplot as plt
-import pickle
+import numpy as np
+import os
+import PIL
+import tensorflow as tf
 from sklearn.metrics import confusion_matrix
-from sklearn.utils import shuffle           
 import seaborn as sn
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Dense, Activation, Dropout, Flatten
 
-data_dir = ['flowers', 'flowers_test']
-# data_dir = 'D:/myProject(D)/2022Project/DeepLearning/flowers_test'
-class_names = ['daisy','dandelion','rose','sunflower','tulip']
-
-IMG_SIZE = 100
-train_data = []
-test_data = []
-
-for dir in data_dir:
-    for clas in class_names:
-        folder = os.path.join(dir, clas)  #'daisy','dandelion','rose','sunflower','tulip'
-        label = class_names.index(clas)
-        print("Loading",clas, "...")
-        for img in os.listdir(folder):
-            #讀取+處理
-            img_path = os.path.join(folder, img)
-            img_arr = cv2.imread(img_path)
-            img_arr = cv2.cvtColor(img_arr, cv2.COLOR_BGR2RGB)
-            img_arr = cv2.resize(img_arr, (IMG_SIZE, IMG_SIZE))
-            #label
-            if dir == 'flowers' :
-                train_data.append([img_arr, label])
-            else:
-                test_data.append([img_arr, label])
-    
-#        
-# random.shuffle(train_data)
-
-train_images = []
-test_images = []
-train_labels = []
-test_labels = []
-
-def load_data(data):
-    X = [] #images
-    Y = [] #labels
-    for features, labels in data:
-        X.append(features)
-        Y.append(labels)
-    X = np.array(X, dtype = 'float32')
-    Y = np.array(Y, dtype = 'int32')
-    return (X, Y)
-
-(train_images,train_labels) = load_data(train_data)
-(test_images,test_labels) = load_data(test_data)
-train_images, train_labels = shuffle(train_images, train_labels, random_state=25)
+from tensorflow import keras
+from keras.layers import Conv2D, MaxPooling2D, Dense, Dropout, Flatten
+from keras.layers import Rescaling
+from tensorflow.keras.models import Sequential
+import pathlib
+import random
 
 
-print("train_images len",len(train_images))
-print("test_images len",len(test_images))
-print("train_images.shape",train_images.shape)
-print("test_images.shape",test_images.shape)
-print("test_images lab",test_labels)
-print("train_images lab",train_labels)
-##
-# #pickle儲存
-# pickle.dump(train_images, open('train_images.pkl', 'wb'))
-# pickle.dump(train_labels, open('train_labels.pkl', 'wb'))
-#pickle讀取
-# train_images = pickle.load(open('train_images.pkl', 'rb'))
-# train_labels = pickle.load(open('train_labels.pkl', 'rb'))
+data_dir = pathlib.Path('D:/lanac/deepLearning/DL/flowers')
 
-#標準化
-print("------------------------------")
+#參數設定
+BATCH_SIZE = 32 #一次抓取的量
+IMG_SIZE = 128 
+epochs = 15 #步數
 
-train_images = train_images / 255 
-print("train_images len",len(train_images))
-print("test_images len",len(test_images))
-print("train_images.shape",train_images.shape)
-print("test_images.shape",test_images.shape)
-print("test_images lab",test_labels)
-print("train_images lab",train_labels)
-#訓練
-input_shape = (IMG_SIZE, IMG_SIZE, 3)
+#讀imgs
+train_data = tf.keras.preprocessing.image_dataset_from_directory(
+  data_dir,
+#   color_mode='grayscale',
+  seed=123,
+  image_size=(IMG_SIZE, IMG_SIZE),
+  batch_size=BATCH_SIZE
+)
+
+test_data = tf.keras.preprocessing.image_dataset_from_directory(
+  data_dir,
+#   color_mode='grayscale',
+  seed=456,
+  image_size=(IMG_SIZE, IMG_SIZE),
+  batch_size=BATCH_SIZE
+)  
+
+class_names = train_data.class_names #['daisy','dandelion','rose','sunflower','tulip']
+
+
+#---性能優化---------
+AUTOTUNE = tf.data.AUTOTUNE
+#.cache() : 第一次load後，會將img保存memory 
+#.prefetch()：可以先做預處理
+train_data = train_data.cache().shuffle(1000).prefetch(buffer_size=AUTOTUNE)
+test_data = test_data.cache().prefetch(buffer_size=AUTOTUNE)
+
+
+#########################################
+#---建模---------
 model = Sequential([
+    Rescaling(1.0/255 ,input_shape=(IMG_SIZE, IMG_SIZE, 3)), #標準化(因0-255組)
+    #第一層
     Conv2D(16, (3,3), padding='same', activation='relu'),
     MaxPooling2D((2,2)),
     Dropout(0.2),
-
+    #第二層
     Conv2D(32, (3,3), padding='same', activation='relu'),
     MaxPooling2D((2,2)),
     Dropout(0.2),
-
+    #第三層
     Conv2D(64, (3,3), padding='same', activation='relu'),
     MaxPooling2D((2,2)),
     Dropout(0.2),
-
+    #攤平、連接
     Flatten(),
-    Dense(128,  input_shape=train_images.shape[1:], activation='relu'),
+    Dense(128,   activation='relu'),
     Dense(5, activation='softmax'),
 ])
-print("訓練",len(train_images),"張資料")
-#model執行
-epochs = 10
+
+#---------訓練----------
 model.compile(
-    optimizer='adam',
-    loss='sparse_categorical_crossentropy',
+    optimizer='adam', #adam:學習速度是動態的
+    loss='sparse_categorical_crossentropy', #分類時常用
     metrics=['accuracy']
 )
 
 history = model.fit(
-    train_images, train_labels,
-    epochs=epochs, 
-    # batch_size=128, 
-    validation_split=0.1
-)
+  train_data,
+  validation_data=test_data,
+  epochs=epochs
+)  
 
-#測試
-scores = model.evaluate(test_images, test_labels)  
-print("scores=",scores[1]) #[0]:loss [1]:accuracy
-
-#預測
-predictions = model.predict(test_images)     # Vector of probabilities
-pred_labels = np.argmax(predictions, axis = 1)  # 取出機率最大的 index
-print('pred_labels:',pred_labels)
+scores = model.evaluate(test_data)  
 
 
-##---PLT----------------------------
-acc = history.history['accuracy']
-val_acc = history.history['val_accuracy']
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+#---抓lables----------
+pred_labels = np.array([])
+test_labels = np.array([])
+for x, y in test_data:
+    predictions = model.predict(x)
+    pred_labels = np.concatenate([pred_labels, np.argmax(predictions,axis = 1) ])
+    test_labels = np.concatenate([test_labels, y.numpy()])
 
-#1. loss折線圖
-plt.title('train_loss')
-plt.ylabel('loss')
-plt.xlabel('Epoch')
-plt.plot(loss)
-#1.2
+
+#->>>>>>>>>>>>>>>> 畫圖區PLT <<<<<<<<<<<<<<<<<<<<<<<<
+
+acc = history.history['accuracy'] #訓練集正確率
+val_acc = history.history['val_accuracy'] #測試集正確率
+loss = history.history['loss'] #訓練集loss
+val_loss = history.history['val_loss'] #測試集loss
+epochs_range = range(epochs)
+
+#1.折線圖
 epochs_range = range(epochs)
 plt.figure(figsize=(8, 8))
 plt.subplot(1, 2, 1)
-plt.plot(epochs_range, acc, label='Training Accuracy')
-plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+plt.plot(epochs_range, acc, label=' Accuracy')
+plt.plot(epochs_range, val_acc, label=' Accuracy')
 plt.legend(loc='lower right')
-plt.title('Training and Validation Accuracy')
+plt.title('Accuracy')
 plt.subplot(1, 2, 2)
-plt.plot(epochs_range, loss, label='Training Loss')
-plt.plot(epochs_range, val_loss, label='Validation Loss')
+plt.plot(epochs_range, loss, label=' Loss')
+plt.plot(epochs_range, val_loss, label=' Loss')
 plt.legend(loc='upper right')
-plt.title('Training and Validation Loss')
+plt.title('Loss')
 
 #2.混淆矩陣
 CM = confusion_matrix(test_labels, pred_labels)
@@ -165,17 +131,20 @@ sn.heatmap(
 ax.set_title('Confusion matrix')
 
 #3.隨機取10張
-test_images = test_images.astype('uint8')
-plt.figure(figsize=(12,6))
-for i in range(0, 10, 1):
-    plt.subplot(4, 4, i+1)
-    plt.tight_layout()
-    plt.axis('off')
-    # prob = predictions[pred_labels[i]]
-    # print('prob:',prob)
-    index = pred_labels[i]
-    text = class_names[test_labels[i]] 
-    text = text + '  (Correct)' if test_labels[i] == pred_labels[i] else text + '   (Incorrect)'  
-    plt.title(text)
-    plt.imshow(test_images[i])
+index = 1
+plt.figure(figsize=(12, 10))
+for images, labels in test_data.take(1): #拿一bacth的量(32)
+    pred_labels_slice = pred_labels[:32].astype(int)
+    rand_list = random.sample(range(0, BATCH_SIZE-1), 10) #隨機取10個
+    for i in rand_list:
+        plt.subplot(4, 4, index)
+        plt.tight_layout()
+        plt.axis('off')
+        #顯示結果
+        text = class_names[labels.numpy()[i]] 
+        text = text + '  (Correct)' if labels.numpy()[i] == pred_labels_slice[i] else text + '   (Incorrect)'  
+        plt.title(text)
+        plt.imshow(images[i].numpy().astype("uint8"))
+        index += 1
+
 plt.show()
