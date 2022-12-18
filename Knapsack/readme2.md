@@ -3,6 +3,41 @@
 # 🔵 Ⅱ. 超啟發式演算法
 ## 2. Simulation Annealing
 
+---
+
+### 12/17 更新(平滑化)
+* **原本(問題)**：
+    * 在前幾次找解的過程中，每次都做偏大量的計算，所以很快就遇到「山頂」，使找資料的過程中出現**斷層**，沒有好好利用「***退火過程步步逼擬最佳解***」的過程 (圖A)
+* **原本(發現)**：
+    * 每個溫度在生成鄰居比對「最佳解」、「暫時解」時，都**做n次**，當n大，每回**計算複雜**，容易較快找到解答，但也耗效能。也易造成斷層
+
+<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/SA1.jpg" width="auto" height="400" />
+
+`圖A`
+
+---
+* **優化：找鄰居**：
+    1. 原本每回(溫度)做n次，改**由random一數r**，做**r回** (範圍：**$n/2$ ~ $n$**)
+
+* **優化：想法**：
+    * 設計這樣的方式主要是經過觀察後，很容易太早找到山頂，沒有一步步逼近，所以將單回範圍縮小+不固定，讓數據盡量圓滑
+    * 另外經過試驗，將**T提高1.5倍 (=200)**，**臨界溫度提高10倍(=10)**。 **收斂速度再慢(=0.95)** 一點，得到以下趨勢圖 (圖B)
+
+    ```python=
+
+        while t >= TF:
+            exe_time = random.randrange(int(varibles.objNums/2), int(varibles.objNums)) #該溫度要做幾次 (n/2 ~ n)
+            for index in range(exe_time):
+                ##比對
+                ........
+                ........
+    ```
+
+<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/SIM.jpg" width="100%" height="AUTO" />
+
+---
+
+
 ### ◻ 方法
 1. **流程圖**
 ```mermaid
