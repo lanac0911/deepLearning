@@ -22,9 +22,7 @@
 * **優化：想法**：
     * 設計這樣的方式主要是經過觀察後，很容易太早找到山頂，沒有一步步逼近，所以將單回範圍縮小+不固定，讓數據盡量圓滑
     * 另外經過試驗，將**T提高1.5倍 (=200)**，**臨界溫度提高10倍(=10)**。 **收斂速度再慢(=0.95)** 一點，得到以下趨勢圖 (圖B)
-
-    ```python=
-
+    ```python
         while t >= TF:
             exe_time = random.randrange(int(varibles.objNums/2), int(varibles.objNums)) #該溫度要做幾次 (n/2 ~ n)
             for index in range(exe_time):
@@ -33,7 +31,7 @@
                 ........
     ```
 
-<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/SIM.jpg" width="100%" height="AUTO" />
+<img src="https://github.com/lanac0911/deepLearning/blob/main/imgs/SIM.jpg" width="90%" height="AUTO" />
 
 ---
 
