@@ -12,20 +12,22 @@ def UpdateNowState(blist, w, v):
     now_state['value']= v
 
 #---------Random"合法"初始狀態(解)----------
-def initialState():
+def initialState(mode):
     global best_state
     pickBound = math.pow(2, int(varibles.objNums)) #upperbound: 2^15
     inti_w = 0; init_v = 0
+    cap = varibles.capcity
+    if mode == 's': cap = cap * 0.6
     while(1):
         initNum = format(random.randrange(int(pickBound/2) , pickBound), 'b') #範圍: (2^15/2) - 2^15
         blist = binToList(initNum) #拆成list
         (w, v) = calTotalWandV(blist)  #計算weight & value
         
-        if w <= varibles.capcity: #是否合法
+        if w <= cap: #是否合法
             inti_w = w
             init_v = v
             break
-    print("初始解",blist)
+    print("初始解",blist,w, v)
     UpdateNowState(blist, inti_w, init_v) #存入Now狀態
     best_state = now_state.copy() #(SA)初始先設為Best
 
@@ -121,17 +123,19 @@ def HillClimbing():
 
 #>>>>>>>>>>> Simulation Annealing <<<<<<<<<<
 def SimulationAnnealing():
-    T0 = 180 #初始溫度 (影響解的搜索範圍)
-    TF = 1 #臨界溫度
-    RATIO = 0.9 #收斂速度 (過快較可能找不到最佳解)
+    global best_state
+    T0 = 200 #初始溫度 (影響解的搜索範圍)
+    TF = 10 #臨界溫度
+    RATIO = 0.95 #收斂速度 (過快較可能找不到最佳解)
     t = T0
 
     while t >= TF:
-        for index, pick in enumerate(now_state['blist']): #遍歷每個位元
+        exe_time = random.randrange(int(varibles.objNums/2), int(varibles.objNums)) #該溫度要做幾次 (1-n)
+        for index in range(exe_time):
             (now_w, now_v) = calTotalWandV(now_state['blist'])
             #生成 neighbors(test)
             test_list = now_state['blist'].copy()
-            test_list[index] = int(not pick)
+            test_list[index] = int(not test_list[index])
             (test_w, test_v) = calTotalWandV(test_list)
             #best更新
             if test_w > varibles.capcity: continue #非法，跳過

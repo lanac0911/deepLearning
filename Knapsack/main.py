@@ -30,7 +30,7 @@ history = []
 #------------------------------------
 def HillClimb() :
     i = 0
-    compoents.initialState() #初始值/解
+    compoents.initialState('h') #初始值/解
     while i < varibles.iteraNum:
         (stage) = compoents.HillClimbing() #初始值
         history.append(stage['value'])
@@ -39,7 +39,7 @@ def HillClimb() :
 
 def SA() :
     i = 0
-    compoents.initialState() #初始值/解
+    compoents.initialState('s') #初始值/解
     while i < varibles.iteraNum:
         (stage) = compoents.SimulationAnnealing() #初始值
         history.append(stage['value'])
@@ -69,7 +69,8 @@ if __name__ == '__main__':
     print(f"* 結果：\n value：{ans['value']}\n weight：{ans['weight']}\n pick：{ans['blist']}")
     print("=========================================\n")
   #畫圖 40-60  1458
-    # yrange = (min(history),)
+    # n = ans['value']
+    # yrange = (n-15, n+1)
     plt.figure()
     plt.ylabel('values')
     plt.xlabel('times')
